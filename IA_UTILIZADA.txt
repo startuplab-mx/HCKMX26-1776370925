@@ -1,0 +1,147 @@
+DOCUMENTACIÓN DE HERRAMIENTAS DE INTELIGENCIA ARTIFICIAL UTILIZADAS
+====================================================================
+Proyecto: Guardián Digital de Menores
+Fecha: Abril 2026
+====================================================================
+
+
+INTRODUCCIÓN
+------------
+Este documento declara de forma explícita todas las herramientas de inteligencia
+artificial empleadas durante el desarrollo del proyecto, diferenciando entre las
+que forman parte del producto final y las que asistieron al equipo de desarrollo
+durante el proceso de construcción.
+
+
+====================================================================
+SECCIÓN A — IA INTEGRADA EN EL PRODUCTO FINAL
+====================================================================
+
+HERRAMIENTA: Anthropic Claude (API)
+------------------------------------
+Rol en el proyecto : Motor central de detección de riesgos digitales
+Modelo utilizado   : claude-haiku-4-5-20251001
+Proveedor          : Anthropic (https://www.anthropic.com)
+
+Descripción:
+  Claude es el componente de inteligencia artificial que hace posible el
+  funcionamiento de la extensión. Cada fragmento de texto o imagen capturado
+  por el content script es enviado a la API de Claude para ser analizado y
+  clasificado según las categorías de riesgo definidas.
+
+Medida de uso:
+  - USO CENTRAL Y CONTINUO durante la ejecución del producto en tiempo real.
+  - Cada análisis de texto genera una llamada a la API con un system prompt
+    especializado de aproximadamente 2.500 palabras que define las 8 categorías
+    de riesgo, los niveles de severidad, reglas de decisión y guías de
+    interpretación de emojis como lenguaje codificado.
+  - El análisis de imágenes utiliza la modalidad de visión (vision) del mismo
+    modelo, enviando la imagen en base64 o por URL junto con instrucciones
+    específicas para detectar contenido visual de riesgo.
+  - La respuesta del modelo siempre es un JSON estructurado con cuatro campos:
+    risk_level, category, explanation y recommendation.
+  - Se configura con temperatura 0.1 para maximizar la consistencia y reducir
+    falsos positivos derivados de variabilidad en las respuestas.
+
+Justificación de elección:
+  Se eligió Claude Haiku por su velocidad de respuesta (baja latencia, crítica
+  para análisis en tiempo real durante la navegación), su capacidad multimodal
+  (texto + visión en un mismo modelo) y su precisión para seguir instrucciones
+  estructuradas con salida JSON estricta.
+
+
+====================================================================
+SECCIÓN B — IA UTILIZADA COMO ASISTENTE DE DESARROLLO
+====================================================================
+
+HERRAMIENTA: Claude Code (Anthropic)
+--------------------------------------
+Rol en el proyecto : Asistente de desarrollo durante la construcción del plugin
+Modelo subyacente  : claude-sonnet-4-6 (Claude Code CLI / extensión VS Code)
+Proveedor          : Anthropic
+
+Descripción:
+  Claude Code es un asistente de programación integrado en el entorno de
+  desarrollo (VS Code) que fue utilizado a lo largo del proceso de construcción
+  del plugin para acelerar tareas específicas de código, resolver dudas técnicas
+  y revisar implementaciones.
+
+Medida y forma de uso — detalle por tipo de tarea:
+
+  1. REVISIÓN DE CÓDIGO
+     - Revisión del system prompt de detección para identificar categorías
+       faltantes, inconsistencias en las reglas de decisión y casos borde
+       no contemplados (por ejemplo, mensajes con sustitución de letras o
+       emojis usados como lenguaje codificado).
+     - Revisión de la lógica del MutationObserver en content.js para verificar
+       que el debounce y el sistema de cola (pending Set) fueran suficientes
+       para no saturar la API con peticiones duplicadas.
+     - Revisión del manejo de errores en las respuestas de la API (status 429,
+       JSON malformado, timeouts) en background.js.
+
+  2. ACLARACIÓN DE DUDAS TÉCNICAS
+     - Consultas sobre el comportamiento del Shadow DOM para aislar los estilos
+       de la alerta flotante y evitar que los CSS de sitios como Instagram
+       sobreescriban los estilos del badge.
+     - Dudas sobre las restricciones de CORS en extensiones Manifest V3 y por
+       qué el fetch de imágenes debe hacerse desde el service worker
+       (background.js) y no desde el content script.
+     - Aclaración sobre la diferencia entre chrome.storage.sync y
+       chrome.storage.local y cuál usar para cada tipo de dato (configuración
+       de usuario vs. historial de alertas de sesión).
+     - Consultas sobre el header "anthropic-dangerous-direct-browser-access"
+       requerido para llamadas directas a la API de Anthropic desde el navegador.
+
+  3. GENERACIÓN DE CÓDIGO PUNTUAL
+     - Generación de la función de conversión de imagen a base64 en background.js
+       (lectura del blob, uso de ArrayBuffer, Uint8Array y btoa con chunks de
+       8192 bytes para evitar desbordamiento de pila en imágenes grandes).
+     - Generación del componente de alerta flotante con Shadow DOM, incluyendo
+       la animación de entrada (sg-slide-in) y el auto-cierre a los 10 segundos.
+     - Generación de los archivos de documentación TECNOLOGIAS.txt e
+       INSTALACION.txt incluidos en este repositorio.
+     - Soporte en la redacción y estructura del system prompt de detección,
+       particularmente en la sección de emojis como lenguaje codificado y en
+       las reglas de decisión numeradas para evitar falsos positivos.
+
+  Alcance y responsabilidad:
+     Todo el código generado con asistencia fue revisado, ajustado e integrado
+     por el equipo de desarrollo. La lógica de negocio (categorías de riesgo,
+     reglas de detección, flujo de análisis) fue definida y validada por el
+     equipo. Claude Code actuó como acelerador técnico, no como autor autónomo
+     del producto.
+
+
+====================================================================
+SECCIÓN C — HERRAMIENTAS DE IA NO UTILIZADAS
+====================================================================
+
+Las siguientes herramientas fueron evaluadas pero NO se utilizaron en este
+proyecto:
+
+- GitHub Copilot      : No utilizado. Se prefirió Claude Code por estar ya
+                        integrado en el flujo de trabajo del equipo.
+- ChatGPT (OpenAI)    : No utilizado.
+- Gemini (Google)     : No utilizado.
+- Groq (LLaMA/Mixtral): Considerado como alternativa de API de inferencia por
+                        su velocidad y costo cero, pero descartado en favor de
+                        Claude por la capacidad multimodal (texto + visión)
+                        necesaria para el análisis de imágenes.
+
+
+====================================================================
+RESUMEN
+====================================================================
+
+  Herramienta              | Rol              | Medida de uso
+  -------------------------|------------------|----------------------
+  Anthropic Claude API     | Producto final   | Uso central continuo
+  (claude-haiku-4-5)       | Motor de IA      | en tiempo real
+  -------------------------|------------------|----------------------
+  Claude Code (VS Code)    | Asistente de     | Uso puntual durante
+  (claude-sonnet-4-6)      | desarrollo       | el desarrollo:
+                           |                  | revisión, dudas y
+                           |                  | generación de código
+  -------------------------|------------------|----------------------
+
+====================================================================
