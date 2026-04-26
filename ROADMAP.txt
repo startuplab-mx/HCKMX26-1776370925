@@ -1,0 +1,263 @@
+ROADMAP DE PRODUCTO — Guardián Digital de Menores
+==================================================
+Evolución planificada de funcionalidades futuras
+==================================================
+
+
+ESTADO ACTUAL (v1.0 — MVP)
+---------------------------
+  - Detección en tiempo real de texto e imágenes en cualquier página web
+  - 8 categorías de riesgo clasificadas por IA (Claude Haiku)
+  - Alerta flotante inmediata para riesgo medio y alto
+  - Historial de alertas de sesión en el popup de la extensión
+  - Activación/desactivación desde el popup
+  - Compatible con Chrome y Edge
+
+
+====================================================================
+ETAPA 2 — REPORTE SEMANAL / MENSUAL A PADRES Y TUTORES
+====================================================================
+
+Descripción general:
+  Habilitar una capa de comunicación entre la extensión y los padres,
+  madres o tutores legales del menor, entregando un resumen periódico
+  de las alertas activadas durante la navegación, sin comprometer la
+  privacidad del menor ni exponer el contenido exacto de los mensajes.
+
+Flujo propuesto:
+
+  [Extensión en el navegador del menor]
+         |
+         | Agrega alertas al historial local (ya funciona en v1.0)
+         v
+  [Backend / Servicio en la nube]
+         |
+         | Al final del período (semanal o mensual), agrupa y
+         | procesa las alertas del perfil del menor
+         v
+  [Motor de análisis e interpretación IA]
+         |
+         | Claude analiza el patrón de alertas del período:
+         | frecuencia, categorías predominantes, tendencias,
+         | nivel de exposición global y recomendaciones específicas
+         v
+  [Generación del reporte en PDF / HTML]
+         |
+         v
+  [Envío por correo electrónico al padre/madre/tutor registrado]
+
+
+Contenido del reporte:
+
+  SECCIÓN 1 — Resumen ejecutivo
+    - Total de alertas del período
+    - Desglose por nivel: alto / medio / bajo
+    - Categoría de riesgo más frecuente
+    - Tendencia vs. período anterior (subió / bajó / estable)
+    - Semáforo de estado general (verde / amarillo / rojo)
+
+  SECCIÓN 2 — Análisis por categoría
+    - Gráfico de barras con la distribución de alertas por categoría
+    - Para cada categoría con alertas, una breve descripción de qué
+      tipo de contenido la activó (sin transcribir el texto exacto,
+      solo el patrón detectado)
+    - Ejemplo: "Se detectaron 3 mensajes con características de
+      captación mediante promesas de dinero fácil o pertenencia grupal."
+
+  SECCIÓN 3 — Interpretación y contexto (generado por IA)
+    - Análisis narrativo del patrón global de alertas del período
+    - Identificación de si las alertas son incidentes aislados
+      o si configuran un patrón de exposición sostenida
+    - Evaluación del perfil de riesgo del menor para ese período
+
+  SECCIÓN 4 — Recomendaciones para padres y tutores
+    - Acciones concretas sugeridas según las categorías detectadas
+    - Recursos y guías de apoyo (instituciones, líneas de ayuda,
+      material educativo por país)
+    - Sugerencias de conversación con el menor según la edad
+
+  SECCIÓN 5 — Configuración del reporte
+    - Enlace para ajustar la frecuencia (semanal / mensual)
+    - Enlace para pausar los reportes temporalmente
+    - Enlace para agregar otro correo destinatario (co-tutor)
+
+Componentes técnicos necesarios:
+
+  - Cuenta de usuario / perfil de menor vinculado a la extensión
+    (requiere sistema de autenticación: correo + contraseña o SSO)
+  - Backend para recibir y almacenar alertas de forma anónima y cifrada
+    (propuesta: Firebase o Supabase con cifrado de datos en reposo)
+  - Job programado (cron) para generar el reporte al cierre del período
+  - Integración con servicio de envío de correo
+    (propuesta: SendGrid, Resend o Amazon SES)
+  - Template HTML/CSS del correo con diseño responsivo para móvil
+  - Endpoint de la API de Claude para el análisis narrativo del reporte
+
+Privacidad y consideraciones éticas:
+  - El texto exacto de los mensajes NO se incluye en el reporte,
+    solo el patrón y la categoría detectada.
+  - Las alertas se almacenan de forma anonimizada (sin metadatos
+    de identificación del sitio o del usuario con quien se interactuó).
+  - Los padres reciben el nivel de exposición, no acceso a
+    conversaciones privadas del menor.
+  - El menor puede ver en la extensión qué información se reporta.
+  - Cumplimiento con COPPA (EE.UU.), GDPR (Europa) y legislaciones
+    locales de protección de datos de menores.
+
+
+====================================================================
+ETAPA 3 — ANÁLISIS AVANZADO E INTERPRETACIÓN PREDICTIVA
+====================================================================
+
+Descripción general:
+  Incorporar una capa analítica más profunda que vaya más allá del
+  conteo de alertas y permita identificar tendencias, cambios de
+  comportamiento y perfiles de riesgo evolutivos.
+
+Funcionalidades planificadas:
+
+  3.1 Dashboard web para padres y tutores
+      - Panel accesible desde cualquier navegador (sin necesidad
+        de tener la extensión instalada)
+      - Visualización histórica: línea de tiempo de alertas
+        por semana / mes / trimestre
+      - Mapa de calor de categorías de riesgo por día de la semana
+        y hora del día (¿cuándo está más expuesto el menor?)
+      - Comparativa entre períodos
+
+  3.2 Detección de patrones de riesgo sostenido
+      - Si un mismo tipo de riesgo aparece repetidamente en un período
+        corto (ej. 5 alertas de "captacion_criminal" en 3 días),
+        el sistema genera una alerta prioritaria inmediata al tutor,
+        sin esperar al reporte periódico.
+      - Umbral configurable por el tutor según criterio de sensibilidad.
+
+  3.3 Perfil de exposición del menor (generado por IA)
+      - Análisis acumulado de los últimos 3 meses para generar un
+        perfil de exposición: qué tipo de contenido de riesgo
+        frecuenta el menor, en qué plataformas, en qué horarios.
+      - Identificación de posibles situaciones de riesgo en curso
+        (ej. contacto repetido con contenido de grooming en
+        una plataforma específica).
+
+  3.4 Recomendaciones personalizadas por perfil y edad
+      - El sistema ajusta las recomendaciones según la edad declarada
+        del menor (8-11 / 12-14 / 15-17 años).
+      - Para cada categoría de riesgo detectada como recurrente,
+        sugiere recursos específicos: cuentos, videos, actividades
+        o conversaciones guiadas adaptadas a la edad.
+
+  3.5 Modo escuela / institución educativa
+      - Versión de la extensión para despliegue masivo en
+        computadoras de colegios o bibliotecas públicas.
+      - Panel de administración para orientadores o psicólogos
+        escolares (anonimizado, sin identificar al alumno).
+      - Reportes agregados por grupo o grado escolar.
+
+
+====================================================================
+ETAPA 4 — ALIANZAS ESTRATÉGICAS CON PLATAFORMAS DIGITALES
+====================================================================
+
+Descripción general:
+  Establecer acuerdos de colaboración con redes sociales y plataformas
+  digitales para potenciar el alcance y la efectividad de Guardián
+  Digital de Menores, pasando de una extensión de navegador a una
+  solución integrada a nivel de plataforma.
+
+  4.1 Alianza con Meta (Facebook e Instagram)
+      ------------------------------------------
+      Objetivo: integrar la detección de riesgos directamente en las
+      APIs y sistemas de moderación de Meta, sin depender de una
+      extensión de terceros instalada por el usuario.
+
+      Modalidades de colaboración propuestas:
+
+        A) API de moderación de contenido
+           - Meta expone endpoints de su API para enviar contenido
+             sospechoso a la detección de Guardián Digital y recibir
+             una clasificación de riesgo que complementa sus propios
+             filtros de seguridad infantil.
+           - El resultado alimenta los sistemas internos de moderación
+             de Meta (sin reemplazarlos, actuando como capa adicional
+             especializada en contexto latinoamericano y en lenguaje
+             local codificado).
+
+        B) Programa de Seguridad Familiar de Instagram
+           - Integración con las herramientas de supervisión parental
+             ya existentes en Instagram ("Supervisión familiar"):
+             los reportes de Guardián Digital se muestran dentro
+             del panel de supervisión nativo de la app.
+           - Notificaciones en tiempo real al perfil del tutor
+             cuando se detecta una alerta de nivel alto en la cuenta
+             del menor, sin salir de la app de Instagram.
+
+        C) Certificación como herramienta aliada
+           - Meta certifica a Guardián Digital como herramienta
+             de seguridad infantil recomendada y la incluye en su
+             Centro de Seguridad para Familias.
+           - Acceso a datos agregados y anonimizados de tendencias
+             de riesgo para mejorar el modelo de detección.
+
+  4.2 Alianza con TikTok
+      --------------------
+      - Integración con el "Modo Familia" de TikTok para añadir
+        reportes de exposición a contenido de riesgo en el panel
+        de control parental de la plataforma.
+      - Colaboración en la detección de narrativas de reclutamiento
+        criminal y narco-cultura dirigidas a jóvenes, un vector
+        de riesgo especialmente activo en TikTok en América Latina.
+
+  4.3 Alianza con WhatsApp / Telegram
+      ------------------------------------
+      - Colaboración para el análisis de mensajes en grupos públicos
+        o comunidades donde participen menores, sin acceso a chats
+        privados (end-to-end encryption permanece intacta).
+      - Bot de WhatsApp para padres: el tutor puede reenviar un
+        mensaje sospechoso al bot y recibir un análisis de riesgo
+        inmediato generado por la IA de Guardián Digital.
+
+  4.4 Alianza con entidades públicas y ONGs
+      -----------------------------------------
+      - Ministerios de Educación y organismos de protección de la
+        infancia (UNICEF, Save the Children, organismos nacionales):
+        distribución de la extensión a través de programas de
+        educación digital en escuelas públicas.
+      - Integración con líneas de denuncia nacionales: las alertas
+        de nivel alto pueden incluir un enlace directo a la línea
+        de reporte de cada país (ej. 141 en Argentina, CIBERCRIMEN
+        en México, Línea 106 en Colombia).
+      - Validación del modelo de detección con equipos especializados
+        en ciberdelitos contra menores de fuerzas de seguridad.
+
+  Requisitos para las alianzas:
+    - Certificación de privacidad y cumplimiento normativo (GDPR,
+      COPPA, legislaciones locales de protección de datos de menores).
+    - Auditoría independiente del modelo de IA para validar precisión
+      y ausencia de sesgos discriminatorios.
+    - Acuerdo de no comercialización de los datos de menores.
+    - Marco legal de responsabilidad compartida entre la plataforma
+      y Guardián Digital ante casos de falso negativo (contenido
+      de riesgo no detectado).
+
+
+====================================================================
+RESUMEN DE HOJA DE RUTA
+====================================================================
+
+  ETAPA | NOMBRE                          | ESTADO
+  ------|----------------------------------|----------
+  v1.0  | MVP — Detección en tiempo real   | Completado
+  v2.0  | Reporte periódico a padres       | Planificado
+        | vía correo electrónico           |
+  v2.5  | Análisis e interpretación IA     | Planificado
+        | del reporte                      |
+  v3.0  | Dashboard web + alertas          | Planificado
+        | predictivas + perfil de riesgo   |
+  v3.5  | Modo escuela / institucional     | Planificado
+  v4.0  | Alianzas con plataformas         | En exploración
+        | (Meta, TikTok, WhatsApp)         |
+  v4.5  | Alianzas con entidades públicas  | En exploración
+        | y ONGs                           |
+
+====================================================================

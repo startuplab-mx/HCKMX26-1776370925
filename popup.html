@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Guardián Digital de Menores</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      min-height: 200px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      color: #1f2937;
+      background: #f9fafb;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #102344 0%, #1a3a6b 60%, #0d1e3a 100%);
+      color: white;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-logo { height: 48px; width: auto; object-fit: contain; margin-right: auto; }
+
+    .toggle-wrap { display: flex; align-items: center; gap: 6px; }
+    .toggle-label { font-size: 11px; color: #ffffff; font-weight: 600; }
+
+    /* Toggle switch */
+    .toggle { position: relative; width: 36px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.3);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      left: 3px; top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .slider { background: #00BFFF; }
+    .toggle input:checked + .slider::before { transform: translateX(16px); }
+
+    /* Sections */
+    .section { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; }
+    .section:last-child { border-bottom: none; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #102344;
+      margin-bottom: 8px;
+    }
+
+    /* API Key */
+    .api-row { display: flex; gap: 6px; }
+    .api-input {
+      flex: 1;
+      padding: 7px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+      color: #374151;
+      background: white;
+      transition: border-color 0.15s;
+    }
+    .api-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.15); }
+    .api-input.saved { border-color: #00BFFF; }
+
+    .btn-save {
+      padding: 7px 14px;
+      background: linear-gradient(135deg, #102344 0%, #1a3a6b 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s;
+      white-space: nowrap;
+    }
+    .btn-save:hover { filter: brightness(1.2); }
+    .btn-save.saved { background: #16a34a; }
+
+    .api-hint {
+      font-size: 11px;
+      color: #4b5563;
+      margin-top: 5px;
+    }
+
+    .btn-test {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #102344 0%, #1a3a6b 60%, #0d1e3a 100%);
+      border: none;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #ffffff;
+      transition: filter 0.15s;
+      white-space: nowrap;
+    }
+    .btn-test:hover { filter: brightness(1.2); }
+    .btn-test:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #test-status {
+      font-size: 11px;
+      font-weight: 600;
+    }
+    #test-status.ok  { color: #16a34a; }
+    #test-status.err { color: #dc2626; }
+
+    /* Stats */
+    .stats { display: flex; gap: 8px; }
+    .stat {
+      flex: 1;
+      background: #f3f4f6;
+      border: 1px solid rgba(6,13,26,0.1);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .stat.active { border-color: rgba(6,13,26,0.25); }
+    .stat.active:has(.stat-num.high)   { background: linear-gradient(160deg, #fff 40%, rgba(239,68,68,0.12) 100%); }
+    .stat.active:has(.stat-num.medium) { background: linear-gradient(160deg, #fff 40%, rgba(249,115,22,0.12) 100%); }
+    .stat.active:has(.stat-num.low)    { background: linear-gradient(160deg, #fff 40%, rgba(245,158,11,0.12) 100%); }
+    .stat-num {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat:not(.active) .stat-num { color: #6b7280; }
+    .stat-num.low    { color: #f59e0b; }
+    .stat-num.medium { color: #f97316; }
+    .stat-num.high   { color: #ef4444; }
+    .stat-lbl { font-size: 10px; color: #060D1A; margin-top: 3px; }
+
+    /* Alerts list */
+    .alerts-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .btn-clear {
+      font-size: 10px;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #102344 0%, #1a3a6b 60%, #0d1e3a 100%);
+      border: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: filter 0.15s;
+      white-space: nowrap;
+    }
+    .btn-clear:hover { filter: brightness(1.2); }
+
+    .alerts-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #1a3a6b #e5e7eb; }
+    .alerts-list::-webkit-scrollbar { width: 6px; }
+    .alerts-list::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 10px; }
+    .alerts-list::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #102344 0%, #1a3a6b 100%); border-radius: 10px; }
+    .alerts-list::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #1a3a6b 0%, #102344 100%); }
+
+    .alert-item {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 9px 11px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: box-shadow 0.2s;
+    }
+    .alert-item:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+    .alert-item.low    { background: linear-gradient(160deg, #fff 50%, rgba(245,158,11,0.06) 100%); border-color: rgba(245,158,11,0.3); }
+    .alert-item.medium { background: linear-gradient(160deg, #fff 50%, rgba(249,115,22,0.06) 100%); border-color: rgba(249,115,22,0.3); }
+    .alert-item.high   { background: linear-gradient(160deg, #fff 50%, rgba(239,68,68,0.06)  100%); border-color: rgba(239,68,68,0.3);  }
+
+    .alert-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .alert-item-cat {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    .alert-item-cat::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .alert-item-cat.low    { background: rgba(245,158,11,0.12); color: #92400e; }
+    .alert-item-cat.low::before    { background: #f59e0b; }
+    .alert-item-cat.medium { background: rgba(249,115,22,0.12); color: #9a3412; }
+    .alert-item-cat.medium::before { background: #f97316; }
+    .alert-item-cat.high   { background: rgba(239,68,68,0.12);  color: #7f1d1d; }
+    .alert-item-cat.high::before   { background: #ef4444; }
+
+    .alert-item-time { font-size: 10px; color: #6b7280; font-weight: 500; }
+    .alert-item-text { font-size: 12px; color: #1f2937; line-height: 1.4; }
+    .alert-item-explanation {
+      font-size: 11px;
+      color: #374151;
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px solid #e5e7eb;
+      line-height: 1.35;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #060D1A;
+      font-size: 12px;
+      padding: 16px 0;
+    }
+    .empty-state span { display: block; font-size: 24px; margin-bottom: 6px; }
+
+    /* Footer */
+    .footer {
+      padding: 8px 16px;
+      background: #f3f4f6;
+      font-size: 11px;
+      color: #4b5563;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+    .api-error-banner {
+      display: none;
+      margin: 10px 16px 0;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 12px;
+      color: #7f1d1d;
+      line-height: 1.5;
+    }
+    .api-error-banner strong { display: block; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img class="header-logo" src="adpi.png" alt="Logo" />
+  <div class="toggle-wrap">
+    <span id="test-status" style="font-size:10px;font-weight:600;color:white;margin-right:4px;"></span>
+    <span class="toggle-label" id="toggle-lbl">ON</span>
+    <label class="toggle">
+      <input type="checkbox" id="enable-toggle" />
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
+<div class="api-error-banner" id="api-error-banner">
+  <strong>⚠️ Límite de requests alcanzado (Groq 429)</strong>
+  <span id="api-error-detail"></span>
+</div>
+
+<div class="section">
+  <!-- Configuración oculta -->
+  <!--
+  <div class="section-title">Configuración</div>
+  <div class="api-row">
+    <input type="password" class="api-input" id="api-key" placeholder="gsk_..." autocomplete="off" />
+    <button class="btn-save" id="btn-save">Guardar</button>
+  </div>
+  <p class="api-hint">Conseguí tu key gratis en <strong>console.groq.com</strong> (sin tarjeta).</p>
+  -->
+  <!-- <div id="test-row" style="display:flex;align-items:center;gap:8px;">
+    <button class="btn-test" id="btn-test">Probar conexión</button>
+    <span id="test-status"></span>
+  </div> -->
+</div>
+
+<div class="section">
+  <div class="section-title">Detecciones de esta sesión</div>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num high" id="count-high">0</div>
+      <div class="stat-lbl">Alto</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num medium" id="count-medium">0</div>
+      <div class="stat-lbl">Medio</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num low" id="count-low">0</div>
+      <div class="stat-lbl">Bajo</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="alerts-header">
+    <div class="section-title" style="margin-bottom:0">Últimas alertas</div>
+    <button class="btn-clear" id="btn-clear">Limpiar</button>
+  </div>
+  <div class="alerts-list" id="alerts-list">
+    <div class="empty-state"><span><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#314D1C"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.77 4.93l1.4 1.4L8.43 19.07l-5.6-5.6 1.4-1.4 4.2 4.2L19.77 4.93m0-2.83L8.43 13.44l-4.2-4.2L0 13.47l8.43 8.43L24 6.33 19.77 2.1z"/></svg></span>Sin alertas recientes</div>
+  </div>
+</div>
+
+<div class="footer">Guardián Digital de Menores v1.0 · Powered by Anthropic Claude</div>
+
+<script src="popup.js"></script>
+</body>
+</html>

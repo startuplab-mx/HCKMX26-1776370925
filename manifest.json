@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Guardián Digital de Menores",
+  "version": "1.0.0",
+  "description": "Detecta en tiempo real contenido de riesgo (grooming, fraude, manipulación) para proteger a menores en entornos digitales.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://api.anthropic.com/*", "*://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>", "file://*/*"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
+    "default_title": "Guardián Digital de Menores"
+  }
+}

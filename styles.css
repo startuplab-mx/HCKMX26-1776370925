@@ -1,0 +1,24 @@
+/* Guardián Digital de Menores — Estilos inyectados en páginas */
+
+/* ── Imágenes bloqueadas ──────────────────────────────────────────────────── */
+.sg-img-blocked {
+  filter: blur(20px) brightness(0.35);
+  transition: filter 0.3s ease;
+}
+
+.sg-img-blocked-high   { outline: 3px solid #ef4444; box-shadow: 0 0 18px rgba(239,68,68,0.65); }
+.sg-img-blocked-medium { outline: 3px solid #f97316; box-shadow: 0 0 18px rgba(249,115,22,0.65); }
+.sg-img-blocked-low    { outline: 3px solid #f59e0b; box-shadow: 0 0 18px rgba(245,158,11,0.65); }
+
+/* ── Wrapper alrededor del elemento analizado ──────────────────────────────── */
+.sg-wrapper {
+  position: relative;
+  border-radius: 6px;
+  padding: 4px;
+  margin: 2px 0;
+  transition: outline 0.2s ease;
+}
+
+.sg-risk-low    { outline: 2px solid #f59e0b; background: rgba(245,158,11,0.04); }
+.sg-risk-medium { outline: 2px solid #f97316; background: rgba(249,115,22,0.06); }
+.sg-risk-high   { outline: 3px solid #ef4444; background: rgba(239,68,68,0.08); }
